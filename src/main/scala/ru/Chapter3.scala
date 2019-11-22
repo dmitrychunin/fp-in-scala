@@ -16,7 +16,6 @@ case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
 
 object Chapter3 {
 
-  //todo add tests
   /*
 
   EXERCISE 3.2
@@ -52,8 +51,8 @@ object Chapter3 {
     def loop[A](l: List[A], i: Int): List[A] = l match {
       case Nil => Nil
       case Cons(_, tail) =>
-        if (i <= 0) loop(tail, i - 1)
-        else tail
+        if (i > 0) loop(tail, i - 1)
+        else l
     }
 
     loop(l, n)
@@ -71,7 +70,7 @@ object Chapter3 {
     case Nil => Nil
     case Cons(head, tail) =>
       if (f.apply(head)) dropWhile(tail, f)
-      else tail
+      else l
   }
 
   /*
@@ -82,18 +81,18 @@ object Chapter3 {
   tail?
   def init[A](l: List[A]): List[A]
    */
-  //  def init[A](l: List[A]): List[A] = l match {
-  //    case Nil => Nil
-  //    case Cons(head, tail) => loop(tail, head)
-  //
-  //            todo how to make tailrec?
-  //          @annotation.tailrec
-  //      def loop[A](l: List[A], p: A): List[A] = l match {
-  //        case Cons(_, Nil) => Cons(p, Nil)
-  //        case Cons(head, tail) => Cons(p, loop(tail, head))
-  //      }
-  //  }
+//  todo make tailrec
+  def init[A](list: List[A]): List[A] = {
+    def loop(l: List[A], p: A): List[A] = l match {
+      case Cons(_, Nil) => Cons(p, Nil)
+      case Cons(h, t) => Cons(p, loop(t, h))
+    }
 
+    list match {
+      case Nil => Nil
+      case Cons(head, tail) => loop(tail, head)
+    }
+  }
 
   /*
   EXERCISE 3.7
