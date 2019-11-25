@@ -81,7 +81,6 @@ object Chapter3 {
   tail?
   def init[A](l: List[A]): List[A]
    */
-//  todo make tailrec
   def init[A](list: List[A]): List[A] = {
     def loop(l: List[A], p: A): List[A] = l match {
       case Cons(_, Nil) => Cons(p, Nil)
@@ -91,6 +90,26 @@ object Chapter3 {
     list match {
       case Nil => Nil
       case Cons(head, tail) => loop(tail, head)
+    }
+  }
+
+  def init2[A](list: List[A]): List[A] = {
+
+    @annotation.tailrec
+    def loop(l: List[A], reverted: List[A]): List[A] = l match {
+      case Cons(_, Nil) => reverted
+      case Cons(h, t) => loop(t, Cons(h, reverted))
+    }
+
+    @annotation.tailrec
+    def revert(reverted: List[A], result: List[A]): List[A] = reverted match {
+      case Nil => result
+      case Cons(h, t) => revert(t, Cons(h, result))
+    }
+
+    list match {
+      case Nil => Nil
+      case Cons(head, tail) => revert(loop(tail, Cons(head, Nil)), Nil)
     }
   }
 

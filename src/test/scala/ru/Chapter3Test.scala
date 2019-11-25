@@ -50,4 +50,12 @@ class Chapter3Test extends Assertions {
   @Test def shouldReturnNilIfListIsEmpty(): Unit = {
     assert(Nil == Chapter3.init(Nil))
   }
+
+  @Test def shouldReturnLastElement2(): Unit = {
+    assert(Cons(1, Cons(2, Nil)) == Chapter3.init2(list))
+  }
+
+  @Test def shouldReturnNilIfListIsEmpty2(): Unit = {
+    assert(Nil == Chapter3.init2(Nil))
+  }
 }
