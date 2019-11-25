@@ -101,16 +101,16 @@ object Chapter3 {
       case Cons(h, t) => loop(t, Cons(h, reverted))
     }
 
-    @annotation.tailrec
-    def revert(reverted: List[A], result: List[A]): List[A] = reverted match {
-      case Nil => result
-      case Cons(h, t) => revert(t, Cons(h, result))
-    }
-
     list match {
       case Nil => Nil
       case Cons(head, tail) => revert(loop(tail, Cons(head, Nil)), Nil)
     }
+  }
+
+  @annotation.tailrec
+  def revert[A](reverted: List[A], result: List[A]): List[A] = reverted match {
+    case Nil => result
+    case Cons(h, t) => revert(t, Cons(h, result))
   }
 
   /*
@@ -120,6 +120,9 @@ object Chapter3 {
   might work if you call foldRight with a large list. This is a deeper question that we’ll
   return to in chapter 5.
    */
+  //  product, implemented usign foldRight can't immediately halt recursion, because foldRight would unstoppable call
+  //  foldRight until the end of list, and only then would applied f on all function stack
+
   /*
   EXERCISE 3.8
   See what happens when you pass Nil and Cons themselves to foldRight, like this:
@@ -151,7 +154,6 @@ object Chapter3 {
   signature:
   def foldLeft[A,B](as: List[A], z: B)(f: (B, A) => B): B
    */
-  //todo if this implementation is right why this foldLeft (it's foldRight but tail-recoursive)?
   @annotation.tailrec
   def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
     case Nil => z
@@ -162,16 +164,14 @@ object Chapter3 {
   EXERCISE 3.11
   Write sum, product, and a function to compute the length of a list using foldLeft.
    */
-  //  todo what sense to duplicate sum, product, length from book if api for foldRight ~ foldLeft
-  //  maybe i make foldLeft wrong and f() must be something different from foldRight's one?
   def sumLeft(ns: List[Int]) =
-    foldRight(ns, 0)((x, y) => x + y)
+    foldLeft(ns, 0)((x, y) => x + y)
 
   def productLeft(ns: List[Double]) =
-    foldRight(ns, 1.0)(_ * _)
+    foldLeft(ns, 1.0)(_ * _)
 
   def lengthLeft[A](as: List[A]): Int = {
-    foldRight(as, 0)((_, y) => y + 1)
+    foldLeft(as, 0)((_, y) => y + 1)
   }
 
   /*
@@ -179,18 +179,14 @@ object Chapter3 {
   Write a function that returns the reverse of a list (given List(1,2,3) it returns
   List(3,2,1)). See if you can write it using a fold.
    */
-  //  def reverse[A](as: List[A]): List[A] = as match {
-  //        case Nil => Nil
-  //    case Cons(_, Nil) => as
-  //    case Cons(head, tail) => loop(tail, Cons(head, Nil))
-  //
-  //      @annotation.tailrec
-  //      def loop(as: List[A], reversed: List[A]): List[A] = as match {
-  //        case Nil => reversed
-  //        case Cons(head, tail) => loop(tail, Cons(head, reversed))
-  //      }
-  //      todo why returned type is Unit?
-  //  }
+  def reverse[A](as: List[A]): List[A] = as match {
+    case Nil => Nil
+    case Cons(head, tail) => revert(tail, Cons(head, Nil))
+  }
+
+  def reverse2[A](as: List[A]): List[A] = {
+    foldLeft(as, Nil)((b: List[A], a: A) => Cons(a, b))
+  }
 
   /*
   EXERCISE 3.13

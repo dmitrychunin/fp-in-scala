@@ -58,4 +58,13 @@ class Chapter3Test extends Assertions {
   @Test def shouldReturnNilIfListIsEmpty2(): Unit = {
     assert(Nil == Chapter3.init2(Nil))
   }
+
+  //  EXERCISE 3.9
+  @Test def shouldComputeListLength(): Unit = {
+    assert(3 == Chapter3.length(list))
+  }
+
+  @Test def shouldReturnZeroLengthOnEmptyList(): Unit = {
+    assert(0 == Chapter3.length(Nil))
+  }
 }
