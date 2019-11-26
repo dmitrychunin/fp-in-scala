@@ -165,13 +165,13 @@ object Chapter3 {
   Write sum, product, and a function to compute the length of a list using foldLeft.
    */
   def sumLeft(ns: List[Int]) =
-    foldLeft(ns, 0)((x, y) => x + y)
+    foldLeft(ns, 0)(_ + _)
 
   def productLeft(ns: List[Double]) =
     foldLeft(ns, 1.0)(_ * _)
 
   def lengthLeft[A](as: List[A]): Int = {
-    foldLeft(as, 0)((_, y) => y + 1)
+    foldLeft(as, 0)((l, _) => l + 1)
   }
 
   /*
@@ -184,9 +184,12 @@ object Chapter3 {
     case Cons(head, tail) => revert(tail, Cons(head, Nil))
   }
 
-  def reverse2[A](as: List[A]): List[A] = {
-    foldLeft(as, Nil)((b: List[A], a: A) => Cons(a, b))
-  }
+  //  todo разобраться почему ошибка
+  //  def reverse2[A](as: List[A]): List[A] = {
+  //    val f: (List[A], A) => List[A] =
+  //      (b, a) => Cons(a,b)
+  //    foldLeft(as, Nil)(f)
+  //  }
 
   /*
   EXERCISE 3.13
@@ -195,20 +198,45 @@ object Chapter3 {
   foldRight tail-recursively, which means it works even for large lists without overflowing
   the stack.
    */
+  //  todo понять верно ли я понял задание?
   //  def tailRecursiveFoldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = {
-  //    todo if i change
-  //   foldLeft(as,z)(f)
+  //    foldLeft(as, z)((a, b) => f.apply(b, a))
   //  }
   /*
   EXERCISE 3.14
   Implement append in terms of either foldLeft or foldRight.
    */
+  def appendRight[A](as: List[A], a: A): List[A] = as match {
+    case Nil => Cons(a, Nil)
+    case Cons(head, tail) => Cons(head, appendRight(tail, a))
+  }
+
+  def appendRight2[A](as: List[A], a: A): List[A] = {
+    foldRight(as, Cons(a, Nil))((a, b) => Cons(a, b))
+  }
+
+  //  todo написать аналогичные методы для foldLeft
+  //  def appendLeft[A](as: List[A], a: A): List[A] = as match {
+  //    case Nil => Cons(a, Nil)
+  //    case Cons(head, tail) => Cons(head, appendRight(tail, a))
+  //
+  //      @annotation.tailrec
+  //      def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
+  //        case Nil => z
+  //        case Cons(head, tail) => foldLeft(tail, f.apply(z, head))(f)
+  //      }
+  //  }
   /*
   EXERCISE 3.15
   Hard: Write a function that concatenates a list of lists into a single list. Its runtime
   should be linear in the total length of all lists. Try to use functions we have already
   defined.
    */
+  //todo
+
+  //  def concat[A](as: List[List[A]]): List[A] = {
+  //
+  //  }
   /*
   EXERCISE 3.16
   Write a function that transforms a list of integers by adding 1 to each element.
@@ -216,9 +244,8 @@ object Chapter3 {
    */
   //  todo make tailrec
   //  @annotation.tailrec
-  //  todo use more abstract map instead
-  def listTransformer[A, B](as: List[A], op: B)(f: (A, B) => A): List[A] = as match {
-    case Cons(head, Nil) => Cons(f.apply(head, op), Nil)
+  def listTransformer[A](as: List[A], op: A)(f: (A, A) => A): List[A] = as match {
+    case Nil => Nil
     case Cons(head, tail) => Cons(f.apply(head, op), listTransformer(tail, op)(f))
   }
 
@@ -226,6 +253,13 @@ object Chapter3 {
   EXERCISE 3.17
   Write a function that turns each value in a List[Double] into a String. You can use
   the expression d.toString to convert some d: Double to a String.
+  */
+  //  todo make tailrec
+  //  @annotation.tailrec
+  def doubleListToStringList(ds: List[Double]): List[String] = ds match {
+    case Nil => Nil
+    case Cons(head, tail) => Cons(head.toString, doubleListToStringList(tail))
+  }
   /*
   EXERCISE 3.18
     Write a function map that generalizes modifying each element in a list
@@ -233,8 +267,6 @@ object Chapter3 {
     the structure of the list.Here is its signature:
     def map[A, B](as: List[A])(f: A => B): List[B]
   */
-   */
-  //  todo test map on Double to String converter example
   //  todo make tailrec
   //  @annotation.tailrec
   def map[A, B](s: List[A])(f: A => B): List[B] = s match {
