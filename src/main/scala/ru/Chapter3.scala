@@ -260,6 +260,7 @@ object Chapter3 {
     case Nil => Nil
     case Cons(head, tail) => Cons(head.toString, doubleListToStringList(tail))
   }
+
   /*
   EXERCISE 3.18
     Write a function map that generalizes modifying each element in a list
@@ -308,48 +309,55 @@ object Chapter3 {
 
     For instance, flatMap(List(1, 2, 3))(i => List(i, i)) should result in List(1, 1, 2, 2, 3, 3).
    */
-  //  def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = as match {
-  //    case Nil => Nil
-  //    case Cons(head, Nil) => f.apply(head)
-  //    case Cons(head, tail) => merge(f.apply(head), flatMap(tail)(f))
-  //  }
-  //
-  //  def merge[A, B](f: List[B], s: List[B]): List[B] = s match {
-  //    case Nil => Nil
-  //    case Cons(head, tail) => tail
-  //
-  //      def loop(as: List[B]): List[B] = as match {
-  //        case Cons(head, tail) => loop(tail)
-  //      }
-  //  }
+  def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = as match {
+    case Nil => Nil
+    case Cons(head, Nil) => f.apply(head)
+    case Cons(head, tail) => merge(f.apply(head), flatMap(tail)(f))
+  }
+
+  def merge[A, B](f: List[B], s: List[B]): List[B] = {
+    def loop(fs: List[B], ss: List[B]): List[B] = fs match {
+      case Cons(h, Nil) => Cons(h, ss)
+      case Cons(h, t) => Cons(h, loop(t, ss))
+    }
+
+    f match {
+      case Nil => s
+      case _ => loop(f, s)
+    }
+  }
 
   /*
   EXERCISE 3.21
   Use flatMap to implement filter.
   */
-  //  todo
+  def filter2[A](as: List[A])(f: A => Boolean): List[A] = as match {
+    case Nil => Nil
+    case _ => flatMap(as)(a => if (f.apply(a)) Cons(a, Nil) else Nil)
+  }
+
   /*
   EXERCISE 3.22
   Write a function that accepts two lists and constructs a new list by adding corresponding
   elements. For example, List(1,2,3) and List(4,5,6) become List(5,7,9).
   */
-  def mergeTwoIntLists(as: List[Int], bs: List[Int]): List[Int] = {
-    //    todo check list size are the same?
+  //  todo refactor
+  def mergeTwoIntLists(as: List[Int], bs: List[Int]): Option[List[Int]] = {
     @annotation.tailrec
-    def loop(as: List[Int], bs: List[Int], revertedResult: List[Int]): List[Int] = as match {
-      case Nil => revertList(revertedResult, Nil)
+    def loop(as: List[Int], bs: List[Int], revertedResult: List[Int]): Option[List[Int]] = as match {
+      case Nil => bs match {
+        case Nil => Option.apply(revert(revertedResult, Nil))
+        //second list is longer then first
+        case _ => Option.empty
+      }
       case Cons(headA, tailA) => bs match {
+        //first list is longer then the second
+        case Nil => Option.empty
         case Cons(headB, tailB) => loop(tailA, tailB, Cons(headA + headB, revertedResult))
       }
     }
 
     loop(as, bs, Nil)
-  }
-
-  @annotation.tailrec
-  def revertList[A](as: List[A], result: List[A]): List[A] = as match {
-    case Nil => result
-    case Cons(head, tail) => revertList(tail, Cons(head, result))
   }
 
   /*
@@ -358,11 +366,17 @@ object Chapter3 {
   Name your generalized function zipWith.
    */
 
-  def zipWith[A](as: List[A], bs: List[A], zip: (A, A) => A): List[A] = {
+  def zipWith[A](as: List[A], bs: List[A])(zip: (A, A) => A): Option[List[A]] = {
     @annotation.tailrec
-    def loop(as: List[A], bs: List[A], zip: (A, A) => A, revertedResult: List[A]): List[A] = as match {
-      case Nil => revertList(revertedResult, Nil)
+    def loop(as: List[A], bs: List[A], zip: (A, A) => A, revertedResult: List[A]): Option[List[A]] = as match {
+      case Nil => bs match {
+        case Nil => Option.apply(revert(revertedResult, Nil))
+        //second list is longer then first
+        case _ => Option.empty
+      }
       case Cons(headA, tailA) => bs match {
+        //first list is longer then the second
+        case Nil => Option.empty
         case Cons(headB, tailB) => loop(tailA, tailB, zip, Cons(zip.apply(headA, headB), revertedResult))
       }
     }
@@ -388,7 +402,7 @@ object Chapter3 {
       case Nil => true
       case Cons(headSub, tailSub) => currentSup match {
         //          sup закончился а sub так полностью и не был рекурсивно пройден
-        case Nil => true
+        case Nil => false
         case Cons(headSup, tailSup) => {
           //          если найдено совпадение то уменьшаем текущий sup и sub
           if (headSup == headSub) loop(tailSup, sub, tailSub)
@@ -406,6 +420,7 @@ object Chapter3 {
   EXERCISE 3.25
   Write a function size that counts the number of nodes (leaves and branches) in a tree.
   */
+  //  todo make tailrec
   def size[A](t: Tree[A]): Int = {
     //    @annotation.tailrec
     def loop(tree: Tree[A]): Int = tree match {
@@ -422,29 +437,43 @@ object Chapter3 {
   In Scala, you can use x.max(y) or x max y to compute the maximum of two integers x
   and y.)
   */
+  //  todo make tailrec
+  def findMax(t: Tree[Int]): Int = {
+    //@annotation.tailrec
+    def loop(tree: Tree[Int], current: Int): Int = tree match {
+      case Leaf(v) => if (v > current) v else current
+      case Branch(left, right) =>
+        val l = loop(left, current)
+        val r = loop(right, current)
+        if (l > r) l else r
+    }
+
+    loop(t, Int.MinValue)
+  }
+
   /*
   EXERCISE 3.27
   Write a function depth that returns the maximum path length from the root of a tree
   to any leaf.
   */
-  //  def depth[A](tree: Tree[A]): Int = {
-  //    def loop(tree: Tree[A], currentLevel: Int): Int = tree match {
-  //      case Leaf(value) => currentLevel
-  //      case Branch(left, right) => {
-  //        val leftDepth = loop(left, currentLevel + 1)
-  //        val rightDepth = loop(right, currentLevel + 1)
-  //        max(leftDepth, rightDepth)
-  //        leftDepth.max(ri)
-  //      }
-  //    }
-  //
-  //    loop(tree, 0)
-  //  }
-  //
-  //  def max[A](f: A, s: A): A = {
-  //    if (f > s) f
-  //    else s
-  //  }
+  //  todo make tailrec
+  def depth[A](tree: Tree[A]): Int = {
+    def loop(tree: Tree[A], currentLevel: Int): Int = tree match {
+      case Leaf(value) => currentLevel + 1
+      case Branch(left, right) => {
+        val leftDepth = loop(left, currentLevel + 1)
+        val rightDepth = loop(right, currentLevel + 1)
+        maxInt(leftDepth, rightDepth)
+      }
+    }
+
+    loop(tree, 0)
+  }
+
+  def maxInt(f: Int, s: Int): Int = {
+    if (f > s) f
+    else s
+  }
 
   /*
   EXERCISE 3.28
@@ -452,7 +481,7 @@ object Chapter3 {
   each element in a tree with a given function.
   */
   def map[A, B](t: Tree[A])(f: A => B): Tree[B] = {
-    //    @annotation.tailrec
+    //    todo  @annotation.tailrec
     def loop(tree: Tree[A])(f: A => B): Tree[B] = tree match {
       case Leaf(value) => Leaf(f.apply(value))
       case Branch(left, right) => Branch(loop(left)(f), loop(right)(f))
@@ -467,4 +496,26 @@ object Chapter3 {
   over their similarities. Reimplement them in terms of this more general function. Can
   you draw an analogy between this fold function and the left and right folds for List?
    */
+//  def foldRight[A, B](t: Tree[A], z: B)(f: (B, A) => B)(g: (B, B) => B): B = t match {
+//    case Leaf(value) => f.apply(z, value)
+//    case Branch(left, right) => g(foldRight(left, z)(f), foldRight(right, z)(f))
+//  }
+//
+//  def sizeRight[A](t: Tree[A]): Int = {
+//    foldRight(t, 0)((b, _) => b+1)(_+_)
+//  }
+//
+//
+//  def findMaxRight(t: Tree[Int]): Int = {
+//    foldRight(t, Int.MinValue)((b,a) )
+//  }
+//
+//
+//  def depthRight[A](tree: Tree[A]): Int = {
+//
+//  }
+//
+//  def mapRight[A, B](t: Tree[A])(f: A => B): Tree[B] = {
+//
+//  }
 }

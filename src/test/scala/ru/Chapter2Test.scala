@@ -9,19 +9,15 @@ class Chapter2Test extends Assertions {
   private val descendingOrder: (Int, Int) => Boolean = (x: Int, y: Int) => x >= y
 
   //  EXERCISE 2.1
-  @Test def fibbonachiPositiveTest(): Unit = {
+  @Test def shouldCalcFibbonachiNumber(): Unit = {
     assert(5 == Chapter2.fib(6))
-  }
-  @Test def fibbonachiBoundaryValueTest(): Unit = {
     assert(0 == Chapter2.fib(1))
     assert(1 == Chapter2.fib(2))
   }
 
   //  EXERCISE 2.2
-  @Test def isSortedPositiveTest(): Unit = {
+  @Test def shouldFindIsArraySorted(): Unit = {
     assert(Chapter2.isSorted(as, ascendingOrder))
-  }
-  @Test def isSortedNegativeTest(): Unit = {
     assert(!Chapter2.isSorted(as, descendingOrder))
   }
 
