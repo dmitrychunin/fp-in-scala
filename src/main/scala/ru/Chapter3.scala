@@ -514,6 +514,7 @@ object Chapter3 {
     foldRight(t, 0)((_,_) => 1)((b1,b2) => (if (b1>b2) b1 else b2) + 1)
   }
 
+  //  todo fix return type
   def mapRight[X, Y](t: Tree[X])(f: X => Y): Tree[Y] => Tree[Y] = {
     foldRight(t, _: Tree[Y])((_, x) => Leaf(f.apply(x)))(Branch(_,_))
   }
