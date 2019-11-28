@@ -72,10 +72,3 @@ object Chapter2 {
     a: A => f(g(a))
   }
 }
-
-
-
-
-
-
-

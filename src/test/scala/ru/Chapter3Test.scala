@@ -153,4 +153,19 @@ class Chapter3Test extends Assertions {
       )
     ) == Chapter3.map(integerTree)(_ + 1))
   }
+
+    //  EXERCISE 3.29
+  @Test def shouldCountSizeMaxDepthAndExecuteMap(): Unit = {
+    assert(7 == Chapter3.sizeRight(integerTree))
+    assert(4 == Chapter3.findMaxRight(integerTree))
+    assert(4 == Chapter3.depthRight(integerTree))
+//    println(Chapter3.mapRight(integerTree)(_ + 1)(Leaf(0)))
+    assert(Branch(
+      Leaf(2),
+      Branch(
+        Branch(Leaf(4), Leaf(5)),
+        Leaf(3)
+      )
+    ) == Chapter3.mapRight(integerTree)(_ + 1)(Leaf(0)))
+  }
 }

@@ -496,26 +496,25 @@ object Chapter3 {
   over their similarities. Reimplement them in terms of this more general function. Can
   you draw an analogy between this fold function and the left and right folds for List?
    */
-//  def foldRight[A, B](t: Tree[A], z: B)(f: (B, A) => B)(g: (B, B) => B): B = t match {
-//    case Leaf(value) => f.apply(z, value)
-//    case Branch(left, right) => g(foldRight(left, z)(f), foldRight(right, z)(f))
-//  }
-//
-//  def sizeRight[A](t: Tree[A]): Int = {
-//    foldRight(t, 0)((b, _) => b+1)(_+_)
-//  }
-//
-//
-//  def findMaxRight(t: Tree[Int]): Int = {
-//    foldRight(t, Int.MinValue)((b,a) )
-//  }
-//
-//
-//  def depthRight[A](tree: Tree[A]): Int = {
-//
-//  }
-//
-//  def mapRight[A, B](t: Tree[A])(f: A => B): Tree[B] = {
-//
-//  }
+//  todo make foldLeft
+  def foldRight[A, B](t: Tree[A], z: B)(f: (B, A) => B)(g: (B, B) => B): B = t match {
+    case Leaf(value) => f.apply(z, value)
+    case Branch(left, right) => g(foldRight(left, z)(f)(g), foldRight(right, z)(f)(g))
+  }
+
+  def sizeRight[A](t: Tree[A]): Int = {
+    foldRight(t, 0)((b, _) => b+1)(_+_+1)
+  }
+
+  def findMaxRight(t: Tree[Int]): Int = {
+    foldRight(t, Int.MinValue)((b,a) => if(b>a) b else a)((b1,b2) => if (b1>b2) b1 else b2)
+  }
+
+  def depthRight[A](t: Tree[A]): Int = {
+    foldRight(t, 0)((_,_) => 1)((b1,b2) => (if (b1>b2) b1 else b2) + 1)
+  }
+
+  def mapRight[X, Y](t: Tree[X])(f: X => Y): Tree[Y] => Tree[Y] = {
+    foldRight(t, _: Tree[Y])((_, x) => Leaf(f.apply(x)))(Branch(_,_))
+  }
 }

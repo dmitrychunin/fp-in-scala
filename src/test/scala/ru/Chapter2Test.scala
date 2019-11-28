@@ -42,4 +42,3 @@ class Chapter2Test extends Assertions {
     assert(Math.abs(Math.sin(angle)) == Chapter2.compose(doubleAbs, doubleSin)(angle))
   }
 }
-
